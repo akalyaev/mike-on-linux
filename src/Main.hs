@@ -6,6 +6,7 @@ import           Control.Exception
 import           Data.Text                (Text)
 import           Graphics.UI.AppIndicator
 import           Graphics.UI.Gtk
+import           Graphics.UI.Gtk.General.StockItems
 
 main :: IO ()
 main = do
@@ -17,7 +18,8 @@ main = do
                                    ("indicator-messages" :: Text)
                                    AppIndicatorCategoryApplicationStatus
 
-    actionGroupAddActions actionGroup entries
+    actionGroupAddActions actionGroup buttons
+    actionGroupAddToggleActions actionGroup togls
     uiManagerInsertActionGroup uim actionGroup 0
     catch (uiManagerAddUiFromString uim uiInfo >> return ())
           (\e -> putStrLn $ "Failed to build menus: "
@@ -32,27 +34,18 @@ main = do
 
     mainGUI
 
-entries :: [ActionEntry]
-entries = [
-    ActionEntry "X:Y until Rest" "_X:Y until Rest" (Just "time-until-rest")
+buttons :: [ActionEntry]
+buttons = [
+    ActionEntry "X:Y until Rest" "_X:Y until Rest" (Just stockMediaPause)
                  Nothing Nothing
                  (activateAction "Open"),
-    ActionEntry "Pause Timer" "_Pause Timer" (Just "pause-timer")
+    ActionEntry "Restart Timer" "_Restart Timer" (Just stockMediaRewind)
                  Nothing Nothing
                  (activateAction "Open"),
-    ActionEntry "Restart Timer" "_Restart Timer" (Just "restart-timer")
+    ActionEntry "Ready to Rest" "_Ready to Rest" (Just stockMediaNext)
                  Nothing Nothing
                  (activateAction "Open"),
-    ActionEntry "Ready to Rest" "_Ready to Rest" (Just "ready-to-rest")
-                 Nothing Nothing
-                 (activateAction "Open"),
-    ActionEntry "Settings" "_Settings" (Just "settings")
-                 Nothing Nothing
-                 (activateAction "Open"),
-    ActionEntry "Show Time in Menu Bar" "_Show Time in Menu Bar" (Just "show-time-in-menu-bar")
-                 Nothing Nothing
-                 (activateAction "Open"),
-    ActionEntry "Show Animated Progress in Menu Bar" "_Show Animated Progress in Menu Bar" (Just "show-animated-progress-in-menu-bar")
+    ActionEntry "Settings" "_Settings" Nothing
                  Nothing Nothing
                  (activateAction "Open"),
     ActionEntry "Quit" "_Quit" (Just "application-exit")
@@ -60,17 +53,22 @@ entries = [
                  mainQuit
     ]
 
+togls :: [ToggleActionEntry]
+togls = [
+    ToggleActionEntry "Show Time in Menu Bar" "_Show Time in Menu Bar" (Just "show-time-in-menu-bar")
+                      Nothing Nothing
+                      (toggleSetting "show-time") False
+    ]
+
 uiInfo :: Text
 uiInfo = "<ui>\
          \  <popup name='MenuBar'>\
          \    <menuitem action='X:Y until Rest'/>\
-         \    <menuitem action='Pause Timer'/>\
          \    <menuitem action='Restart Timer'/>\
          \    <menuitem action='Ready to Rest'/>\
          \    <separator/>\
          \    <menuitem action='Settings'/>\
          \    <menuitem action='Show Time in Menu Bar'/>\
-         \    <menuitem action='Show Animated Progress in Menu Bar'/>\
          \    <menuitem action='Quit'/>\
          \  </popup>\
          \</ui>"
@@ -81,3 +79,6 @@ activateAction name = do
                                MessageInfo ButtonsClose name
     _ <- on dialog response (\_ -> widgetDestroy dialog)
     widgetShow dialog
+
+toggleSetting :: String -> IO ()
+toggleSetting name = putStrLn ("TODO")

@@ -1,0 +1,24 @@
+name:                mike
+version:             0.1.0.0
+synopsis:            Eeys & Legs Care & Goal Focus
+description:         Keep coding without damaging your eyes or legs. First
+                     rule: you should give your eyes a break every 25 minutes or so. Second rule:
+                     you should stretch your legs by taking a walk (best) or doing some exersises
+                     (at least) every hour.
+license:             Apache-2.0
+license-file:        LICENSE
+author:              Anton Kalyaev
+maintainer:          anton.kalyaev@gmail.com
+homepage:            https://github.com/akalyaev/mike-on-linux
+category:            GUI
+build-type:          Simple
+extra-source-files:  README.md
+cabal-version:       >=1.10
+
+executable mike
+  main-is:             Main.hs
+  -- other-modules:
+  other-extensions:    OverloadedStrings
+  build-depends:       base >=4.7 && <4.8, text >=1.2 && <1.3, gtk3, happindicator3 >= 0.2.1
+  -- hs-source-dirs:
+  default-language:    Haskell2010

@@ -1,27 +1,15 @@
 module Notification where
 
-import Libnotify
+import DBus.Notify
+import DBus.Client (connectSession)
 
 giveYourEeysABreak :: IO ()
 giveYourEeysABreak = do
-  display $
-       summary "Mike Says"
-    <> body "Give your eyes a break"
-    <> icon "face-embarrassed"
-    <> timeout Infinite
-    <> urgency Critical
-  putStrLn "Done"
-    -- <> action "blob" "Say \"blop\"" blopCallback
-    -- <> action "flop" "Say \"flop\"" (flopCallback l)
-
--- blopCallback :: Notification -> t -> IO Notification
--- blopCallback n _ = do
---   close n
---   putStrLn "Thanks!"
---   display (reuse n <> summary "" <> body "Pretty please, say \"blop\"!")
-
--- flopCallback :: MainLoop -> Notification -> t -> IO ()
--- flopCallback l n _ = do
---   close n
---   putStrLn "Pfft.."
-
+  client <- connectSession
+  do
+    let startNote = appNote { summary="Mike Says"
+                            , body=(Just $ Text "Give your eyes a break") }
+    notification <- notify client startNote
+    putStrLn "Done"
+  where
+    appNote = blankNote { appName="Mike" }

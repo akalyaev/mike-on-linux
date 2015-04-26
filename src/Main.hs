@@ -2,11 +2,13 @@
 
 module Main where
 
+import           Control.Concurrent
 import           Control.Exception
 import           Data.Text                (Text)
 import           Graphics.UI.AppIndicator
 import           Graphics.UI.Gtk
 import           Graphics.UI.Gtk.General.StockItems
+import           Notification
 
 main :: IO ()
 main = do
@@ -32,22 +34,29 @@ main = do
     appIndicatorSetStatus indicator AppIndicatorStatusActive
     appIndicatorSetMenu indicator (castToMenu indicatorMenu)
 
+    -- 50ms timeout, so GHC will get a chance to scheule about 20 times a second
+    -- which gives reasonable latency without the polling generating too much
+    -- cpu load.
+    timeoutAddFull (yield >> return True) priorityDefaultIdle 50
+
+    t <- startTimer
+
     mainGUI
 
 buttons :: [ActionEntry]
 buttons = [
     ActionEntry "X:Y until Rest" "_X:Y until Rest" (Just stockMediaPause)
                  Nothing Nothing
-                 (activateAction "Open"),
+                 (activateAction "ShowSettings"),
     ActionEntry "Restart Timer" "_Restart Timer" (Just stockMediaRewind)
                  Nothing Nothing
-                 (activateAction "Open"),
-    ActionEntry "Ready to Rest" "_Ready to Rest" (Just stockMediaNext)
+                 (activateAction "ShowSettings"),
+    ActionEntry "Ready to Rest" "_Ready to Rest" Nothing
                  Nothing Nothing
-                 (activateAction "Open"),
+                 (activateAction "ShowSettings"),
     ActionEntry "Settings" "_Settings" Nothing
                  Nothing Nothing
-                 (activateAction "Open"),
+                 (activateAction "ShowSettings"),
     ActionEntry "Quit" "_Quit" (Just "application-exit")
                  Nothing Nothing
                  mainQuit
@@ -82,3 +91,16 @@ activateAction name = do
 
 toggleSetting :: String -> IO ()
 toggleSetting name = putStrLn ("TODO")
+
+startTimer :: IO ThreadId
+startTimer = forkIO $ runTimer 25
+
+runTimer :: Integer -> IO ()
+runTimer 0 = giveYourEeysABreak
+runTimer t = do
+      putStrLn $ show t ++ " seconds left"
+      threadDelay second
+      runTimer (t-1)
+
+second :: Int
+second = 1000000
